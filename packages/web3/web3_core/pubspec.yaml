@@ -1,10 +1,10 @@
-name: cel_wallet_base
+name: web3_core
 description: A starting point for Dart libraries or applications.
 version: 1.0.0
 # homepage: https://www.example.com
 
 environment:
-  sdk: '>=2.12.0 <3.0.0'
+  sdk: '>=2.13.0 <3.0.0'
 
 # dependencies:
 #   path: ^1.8.0

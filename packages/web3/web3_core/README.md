@@ -5,7 +5,7 @@ A library for Dart developers.
 A simple usage example:
 
 ```dart
-import 'package:cel_wallet_base/cel_wallet_base.dart';
+import 'package:web3_core/web3_core.dart';
 
 main() {
   var awesome = new Awesome();
