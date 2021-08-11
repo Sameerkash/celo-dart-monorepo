@@ -1,4 +1,3 @@
-library celo_connect;
+library contract_kit;
 
-export 'src/contract_kit.dart'
-;
+export 'src/contract_kit.dart';

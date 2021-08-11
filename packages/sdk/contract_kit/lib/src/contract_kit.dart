@@ -1,11 +1,9 @@
 import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
-import 'dart:convert';
 
 import 'package:http/http.dart';
 import 'package:web3dart/crypto.dart';
-import 'package:web3dart/json_rpc.dart';
 import 'package:web3dart/web3dart.dart';
 
 late Credentials credentials;
@@ -22,10 +20,11 @@ Future<void> initializeCLient(
 
 Future<void> getUserAccount() async {
   final myAddress = await credentials.extractAddress();
-  final balance = await ethClient.getBalance(myAddress);
+  final balance = await ethClient.getBalance(
+      EthereumAddress.fromHex('0x874069fa1eb16d44d622f2e0ca25eea172369bc1'));
   final gasPrice = await ethClient.getGasPrice();
   final tx = await ethClient.getTransactionCount(myAddress);
-  print(myAddress);
+  print('Address :  $myAddress');
   print(balance);
   print(gasPrice);
   print(tx);
@@ -37,17 +36,21 @@ Future<void> createAccount() async {
 
   final pk = bytesToHex(account.privateKey);
   print('Account Adress : ${account.address}');
-  print('PrivateKey : ' + pk);
+  print('Private Key : ' + pk);
 }
 
-Future<void> makeTransaction() async {
+Future<void> makeTransaction({required String address}) async {
   await ethClient.sendTransaction(
-    credentials,
-    Transaction(
-      to: EthereumAddress.fromHex('0xC91...3706'),
-      gasPrice: EtherAmount.inWei(BigInt.one),
-      maxGas: 100000,
-      value: EtherAmount.fromUnitAndValue(EtherUnit.ether, 1),
-    ),
-  );
+      credentials,
+      Transaction(
+        to: EthereumAddress.fromHex(address),
+        gasPrice: EtherAmount.inWei(BigInt.parse('5000000000')),
+        maxGas: 1000000,
+        value: EtherAmount.fromUnitAndValue(EtherUnit.ether, 1),
+      ),
+      chainId: 44787);
 }
+
+
+
+//0x5A5057f59546f319fB7c21B3FA2Bd5e5a5E7c535
