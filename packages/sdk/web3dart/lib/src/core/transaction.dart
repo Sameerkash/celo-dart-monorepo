@@ -40,6 +40,12 @@ class Transaction {
   /// have already been sent by [from].
   final int? nonce;
 
+  final int? gateWayFee;
+
+  final String? gatewayFeeRecipient;
+
+  final String? feeCurrency;
+
   Transaction(
       {this.from,
       this.to,
@@ -47,37 +53,49 @@ class Transaction {
       this.gasPrice,
       this.value,
       this.data,
-      this.nonce});
+      this.nonce,
+      this.gateWayFee,
+      this.feeCurrency,
+      this.gatewayFeeRecipient});
 
   /// Constructs a transaction that can be used to call a contract function.
-  Transaction.callContract({
-    required DeployedContract contract,
-    required ContractFunction function,
-    required List<dynamic> parameters,
-    this.from,
-    this.maxGas,
-    this.gasPrice,
-    this.value,
-    this.nonce,
-  })  : to = contract.address,
+  Transaction.callContract(
+      {required DeployedContract contract,
+      required ContractFunction function,
+      required List<dynamic> parameters,
+      this.from,
+      this.maxGas,
+      this.gasPrice,
+      this.value,
+      this.nonce,
+      this.gateWayFee,
+      this.feeCurrency,
+      this.gatewayFeeRecipient})
+      : to = contract.address,
         data = function.encodeCall(parameters);
 
-  Transaction copyWith(
-      {EthereumAddress? from,
-      EthereumAddress? to,
-      int? maxGas,
-      EtherAmount? gasPrice,
-      EtherAmount? value,
-      Uint8List? data,
-      int? nonce}) {
+  Transaction copyWith({
+    EthereumAddress? from,
+    EthereumAddress? to,
+    int? maxGas,
+    EtherAmount? gasPrice,
+    EtherAmount? value,
+    Uint8List? data,
+    int? nonce,
+    int? gateWayFee,
+    String? gatewayFeeRecipient,
+    String? feeCurrency,
+  }) {
     return Transaction(
-      from: from ?? this.from,
-      to: to ?? this.to,
-      maxGas: maxGas ?? this.maxGas,
-      gasPrice: gasPrice ?? this.gasPrice,
-      value: value ?? this.value,
-      data: data ?? this.data,
-      nonce: nonce ?? this.nonce,
-    );
+        from: from ?? this.from,
+        to: to ?? this.to,
+        maxGas: maxGas ?? this.maxGas,
+        gasPrice: gasPrice ?? this.gasPrice,
+        value: value ?? this.value,
+        data: data ?? this.data,
+        nonce: nonce ?? this.nonce,
+        gateWayFee: gateWayFee ?? this.gateWayFee,
+        gatewayFeeRecipient: gatewayFeeRecipient ?? this.gatewayFeeRecipient,
+        feeCurrency: feeCurrency ?? this.feeCurrency);
   }
 }

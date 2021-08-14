@@ -71,3 +71,13 @@ BigInt hexToInt(String hex) {
 int hexToDartInt(String hex) {
   return int.parse(strip0x(hex), radix: 16);
 }
+
+/// Converts integer to hexadecimal
+String intToHex(int value) {
+  return bytesToHex(intToBytes(BigInt.from(value)));
+}
+
+/// Converts BigInteger to hexadecimal
+String bigIntToHex(BigInt value) {
+  return bytesToHex(intToBytes(value));
+}

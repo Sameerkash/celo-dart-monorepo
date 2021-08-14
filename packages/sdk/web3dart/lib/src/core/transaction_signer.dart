@@ -35,6 +35,13 @@ Future<_SigningInput> _fillMissingData({
         atBlock: const BlockNum.pending());
   }
 
+  final gateWayFee = transaction.gateWayFee ?? 0;
+
+  final gatewayFeeRecipient = transaction.gatewayFeeRecipient ?? '0';
+
+  final feeCurrency =
+      transaction.feeCurrency ?? '0x874069Fa1Eb16D44d622F2e0Ca25eeA172369bC1';
+
   final maxGas = transaction.maxGas ??
       await client!
           .estimateGas(
@@ -48,13 +55,15 @@ Future<_SigningInput> _fillMissingData({
 
   // apply default values to null fields
   final modifiedTransaction = transaction.copyWith(
-    value: transaction.value ?? EtherAmount.zero(),
-    maxGas: maxGas,
-    from: sender,
-    data: transaction.data ?? Uint8List(0),
-    gasPrice: gasPrice,
-    nonce: nonce,
-  );
+      value: transaction.value ?? EtherAmount.zero(),
+      maxGas: maxGas,
+      from: sender,
+      data: transaction.data ?? Uint8List(0),
+      gasPrice: gasPrice,
+      nonce: nonce,
+      gateWayFee: gateWayFee,
+      gatewayFeeRecipient: gatewayFeeRecipient,
+      feeCurrency: feeCurrency);
 
   int resolvedChainId;
   if (!loadChainIdFromNetwork) {
@@ -83,8 +92,25 @@ Future<Uint8List> _signTransaction(
   final encoded =
       uint8ListFromList(rlp.encode(_encodeToRlp(transaction, innerSignature)));
   final signature = await c.signToSignature(encoded, chainId: chainId);
+  final hash =
+      uint8ListFromList(rlp.encode(_encodeToRlp(transaction, signature)));
 
-  return uint8ListFromList(rlp.encode(_encodeToRlp(transaction, signature)));
+  print('''
+    nonce: ${transaction.nonce},
+    gasPrice:  ${transaction.gasPrice},
+    gas:  ${transaction.maxGas},
+    to:  ${transaction.to},
+    value:  ${transaction.value},
+    feeCurrency:  ${transaction.feeCurrency},
+    gatewayFeeRecipient:  ${transaction.gatewayFeeRecipient},
+    gatewayFee:  ${transaction.gateWayFee},
+    v:  ${intToHex(signature.v)},
+    r: ${bigIntToHex(signature.r)},
+    s: ${bigIntToHex(signature.s)},
+    raw : ${bytesToHex(hash)}
+  ''');
+
+  return Uint8List.fromList([1, 2, 3]);
 }
 
 List<dynamic> _encodeToRlp(Transaction transaction, MsgSignature? signature) {
@@ -92,6 +118,9 @@ List<dynamic> _encodeToRlp(Transaction transaction, MsgSignature? signature) {
     transaction.nonce,
     transaction.gasPrice?.getInWei,
     transaction.maxGas,
+    transaction.gateWayFee,
+    transaction.feeCurrency,
+    transaction.gatewayFeeRecipient
   ];
 
   if (transaction.to != null) {
