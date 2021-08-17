@@ -15,27 +15,10 @@ Future<void> main() async {
   final credentials = await client.credentialsFromPrivateKey(privateKey);
   final address = credentials.address;
 
-  print(address.hexEip55);
+  print(address.hex);
   print(await client.getBalance(address));
 
-  await client.signTransaction(
-    credentials,
-    Transaction(
-      to: EthereumAddress.fromHex('0x9a8e698171364db8e0F5Fe30f658F233F1347F6a'),
-      gasPrice: EtherAmount.inWei(BigInt.parse('5000000000')),
-      maxGas: 200000,
-      value: EtherAmount.fromUnitAndValue(EtherUnit.ether, 1),
-      gateWayFee: 1,
-      nonce: 1,
-      data: Uint8List.fromList([123, 345]),
-      gatewayFeeRecipient: '0x0000000000000000000000000000000000000000',
-      feeCurrency:
-          '0x874069Fa1Eb16D44d622F2e0Ca25eeA172369bC1', // cUSD Alfajores contract address
-    ),
-    chainId: 44787,
-  );
-
-  // final tx = await client.sendTransaction(
+  // await client.signCeloTransaction(
   //   credentials,
   //   Transaction(
   //     to: EthereumAddress.fromHex('0x9a8e698171364db8e0F5Fe30f658F233F1347F6a'),
@@ -44,7 +27,7 @@ Future<void> main() async {
   //     value: EtherAmount.fromUnitAndValue(EtherUnit.ether, 1),
   //     gateWayFee: 1,
   //     nonce: 1,
-  //     data: Uint8List.fromList([123, 345]),
+  //     // data: Uint8List.fromList([123, 345]),
   //     gatewayFeeRecipient: '0x0000000000000000000000000000000000000000',
   //     feeCurrency:
   //         '0x874069Fa1Eb16D44d622F2e0Ca25eeA172369bC1', // cUSD Alfajores contract address
@@ -52,9 +35,21 @@ Future<void> main() async {
   //   chainId: 44787,
   // );
 
-  // print('''
-  // tx : "$tx"
-  // ''');
+  final tx = await client.sendTransaction(
+    credentials,
+    Transaction(
+      to: EthereumAddress.fromHex('0x9a8e698171364db8e0F5Fe30f658F233F1347F6a'),
+      gasPrice: EtherAmount.inWei(BigInt.parse('5000000000')),
+      maxGas: 200000,
+      value: EtherAmount.fromUnitAndValue(EtherUnit.ether, 1),
+      nonce: 2,
+      data: Uint8List.fromList([123, 345]),
+    ),
+    chainId: 44787,
+  );
 
+  print('''
+  tx : "$tx"
+  ''');
   await client.dispose();
 }

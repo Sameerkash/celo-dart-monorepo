@@ -20,6 +20,10 @@ class _ExpensiveOperations {
     //   return compute(internalSign, t);
     // }
   }
+
+  Future<Uint8List> signCeloTransaction(_SigningInput t) {
+    return internalCeloSign(t);
+  }
 }
 
 Future<EthPrivateKey> _internalCreatePrivateKey(String hex) async {
@@ -32,4 +36,8 @@ Future<EthPrivateKey> _internalCreatePrivateKey(String hex) async {
 
 Future<Uint8List> internalSign(_SigningInput t) {
   return _signTransaction(t.transaction, t.credentials, t.chainId);
+}
+
+Future<Uint8List> internalCeloSign(_SigningInput t) {
+  return signCeloTransaction(t.transaction, t.credentials, t.chainId);
 }

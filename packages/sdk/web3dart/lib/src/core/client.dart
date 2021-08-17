@@ -312,6 +312,25 @@ class Web3Client {
     return _operations.signTransaction(signingInput);
   }
 
+
+Future<Uint8List> signCeloTransaction(Credentials cred, Transaction transaction,
+      {int? chainId = 1, bool fetchChainIdFromNetworkId = false}) async {
+    final signingInput = await _fillMissingData(
+      credentials: cred,
+      transaction: transaction,
+      chainId: chainId,
+      loadChainIdFromNetwork: fetchChainIdFromNetworkId,
+      client: this,
+    );
+
+    return _operations.signCeloTransaction(signingInput);
+  }
+
+
+
+
+
+
   /// Calls a [function] defined in the smart [contract] and returns it's
   /// result.
   ///

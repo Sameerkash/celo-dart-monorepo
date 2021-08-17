@@ -72,12 +72,12 @@ int hexToDartInt(String hex) {
   return int.parse(strip0x(hex), radix: 16);
 }
 
-/// Converts integer to hexadecimal
-String intToHex(int value) {
+/// Converts [int] to hexadecimal
+String intToHex(num value) {
   return bytesToHex(intToBytes(BigInt.from(value)));
 }
 
-/// Converts BigInteger to hexadecimal
+/// Converts [BigInt] to hexadecimal
 String bigIntToHex(BigInt value) {
   return bytesToHex(intToBytes(value));
 }

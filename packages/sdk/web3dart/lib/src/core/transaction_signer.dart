@@ -35,12 +35,12 @@ Future<_SigningInput> _fillMissingData({
         atBlock: const BlockNum.pending());
   }
 
-  final gateWayFee = transaction.gateWayFee ?? 0;
+  // final gateWayFee = transaction.gateWayFee ?? 0;
 
-  final gatewayFeeRecipient = transaction.gatewayFeeRecipient ?? '0';
+  // final gatewayFeeRecipient = transaction.gatewayFeeRecipient ?? '0';
 
-  final feeCurrency =
-      transaction.feeCurrency ?? '0x874069Fa1Eb16D44d622F2e0Ca25eeA172369bC1';
+  // final feeCurrency =
+  //     transaction.feeCurrency ?? '0x874069Fa1Eb16D44d622F2e0Ca25eeA172369bC1';
 
   final maxGas = transaction.maxGas ??
       await client!
@@ -61,9 +61,10 @@ Future<_SigningInput> _fillMissingData({
       data: transaction.data ?? Uint8List(0),
       gasPrice: gasPrice,
       nonce: nonce,
-      gateWayFee: gateWayFee,
-      gatewayFeeRecipient: gatewayFeeRecipient,
-      feeCurrency: feeCurrency);
+      // gateWayFee: gateWayFee,
+      // gatewayFeeRecipient: gatewayFeeRecipient,
+      // feeCurrency: feeCurrency
+      );
 
   int resolvedChainId;
   if (!loadChainIdFromNetwork) {
@@ -118,9 +119,9 @@ List<dynamic> _encodeToRlp(Transaction transaction, MsgSignature? signature) {
     transaction.nonce,
     transaction.gasPrice?.getInWei,
     transaction.maxGas,
-    transaction.gateWayFee,
-    transaction.feeCurrency,
-    transaction.gatewayFeeRecipient
+    // transaction.feeCurrency,
+    // transaction.gatewayFeeRecipient,
+    // transaction.gateWayFee,
   ];
 
   if (transaction.to != null) {
@@ -136,4 +137,117 @@ List<dynamic> _encodeToRlp(Transaction transaction, MsgSignature? signature) {
   }
 
   return list;
+}
+
+Future<Uint8List> signCeloTransaction(
+    Transaction transaction, Credentials c, int? chainId) async {
+  final innerSignature =
+      chainId == null ? null : MsgSignature(BigInt.zero, BigInt.zero, chainId);
+
+  final rawTx = encodeRlp(transaction, chainId!, innerSignature);
+  final encodeChainId = chainIdTransformationForSigning(chainId);
+
+  final signature = await c.signToSignature(rawTx, chainId: encodeChainId);
+  final result = encodeRlp(transaction, chainId, signature);
+
+  final hash = getHashFromEncoded(rawTx);
+
+  print('''
+    nonce: ${transaction.nonce},
+    gasPrice:  ${transaction.gasPrice},
+    gas:  ${transaction.maxGas},
+    to:  ${transaction.to},
+    value:  ${transaction.value},
+    feeCurrency:  ${transaction.feeCurrency},
+    gatewayFeeRecipient:  ${transaction.gatewayFeeRecipient},
+    gatewayFee:  ${transaction.gateWayFee},
+    v:  ${intToHex(signature.v)},
+    r: ${bigIntToHex(signature.r)},
+    s: ${bigIntToHex(signature.s)},
+    hash : ${bytesToHex(hash)}
+    raw : ${bytesToHex(rawTx)}
+  ''');
+  return result;
+}
+
+Uint8List encodeRlp(
+    Transaction transaction, int chainId, MsgSignature? innerSignature) {
+  final tx = [
+    transaction.nonce,
+    transaction.gasPrice?.getInWei,
+    transaction.maxGas,
+    transaction.feeCurrency,
+    transaction.gatewayFeeRecipient,
+    transaction.gateWayFee,
+    transaction.value?.getInWei,
+    transaction.data,
+    intToHex(chainId),
+    '0x',
+    '0x',
+  ];
+
+  if (innerSignature != null) {
+    tx..add(innerSignature.v)..add(innerSignature.r)..add(innerSignature.s);
+  }
+
+  final rlpEncoded = Rlp.encode(tx);
+
+  return rlpEncoded;
+}
+
+int chainIdTransformationForSigning(int chainId) => chainId * 2 + 35;
+
+Uint8List getHashFromEncoded(Uint8List rlpEncoded) => keccak256(rlpEncoded);
+
+/*
+const encode = tree => {
+  const padEven = str => str.length % 2 === 0 ? str : "0" + str;
+
+  const uint = num => padEven(num.toString(16));
+
+  const length = (len, add) => len < 56 ? uint(add + len) : uint(add + uint(len).length / 2 + 55) + uint(len);
+
+  const dataTree = tree => {
+    if (typeof tree === "string") {
+      const hex = tree.slice(2);
+      const pre = hex.length != 2 || hex >= "80" ? length(hex.length / 2, 128) : "";
+      return pre + hex;
+    } else {
+      const hex = tree.map(dataTree).join("");
+      const pre = length(hex.length / 2, 192);
+      return pre + hex;
+    }
+  };
+
+  return "0x" + dataTree(tree);
+};
+*/
+
+String padEven(String str) => str.length % 2 == 0 ? str : '0$str';
+
+String uint(num number) => padEven(intToHex(number));
+
+String length(int len, int add) => len < 56
+    ? uint(add + len)
+    : uint(add + uint(len).length / 2 + 55) + uint(len);
+
+String encode(dynamic tree) {
+  String data(dynamic tree) {
+    if (tree is String) {
+      final hex = tree.substring(0, 2);
+
+      final pre = hex.length != 2 || int.tryParse(hex)! >= int.parse('80')
+          ? length(hex.length ~/ 2, 128)
+          : '';
+
+      return pre + hex;
+    } else {
+      final hex = tree.map(encode).join('');
+      final pre = length(hex.length ~/ 2 as int, 192);
+
+      return hex + pre as String;
+    }
+  }
+
+  return '0x ${data(tree)}';
 }

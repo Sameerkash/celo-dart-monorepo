@@ -4,6 +4,7 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:collection/collection.dart';
+import 'package:convert/convert.dart';
 import 'package:http/http.dart';
 import 'package:json_rpc_2/json_rpc_2.dart' as rpc;
 import 'package:meta/meta.dart';
@@ -20,12 +21,15 @@ import 'src/core/sync_information.dart';
 import 'src/utils/rlp.dart' as rlp;
 import 'src/utils/typed_data.dart';
 
+
 export 'contracts.dart';
 export 'credentials.dart';
 
 export 'src/core/amount.dart';
 export 'src/core/block_number.dart';
+
 export 'src/core/sync_information.dart';
+part 'src/core/rlp.dart';
 part 'src/core/client.dart';
 part 'src/core/expensive_operations.dart';
 part 'src/core/filters.dart';
