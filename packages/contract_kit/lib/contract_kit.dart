@@ -1,0 +1,2 @@
+library contract_kit;
+
