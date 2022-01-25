@@ -7,8 +7,9 @@ environment:
   sdk: '>=2.14.4 <3.0.0'
 
 
-# dependencies:
-#   path: ^1.8.0
+dependencies:
+  json_rpc_2: ^3.0.0
+  web3dart: ^2.3.3
 
 dev_dependencies:
   lints: ^1.0.0
